@@ -1,0 +1,44 @@
+name: CI - Uniapp
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build H5
+        run: npm run build:h5
+
+      - name: Upload H5 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: uniapp-h5-build
+          path: dist/build/h5/
+          retention-days: 7
+
+      - name: Build MP-WEIXIN (WeChat Mini Program)
+        run: npm run build:mp-weixin
+
+      - name: Upload WeChat Mini Program artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: uniapp-mp-weixin-build
+          path: dist/build/mp-weixin/
+          retention-days: 7
